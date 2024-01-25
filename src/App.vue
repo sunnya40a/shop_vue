@@ -1,7 +1,30 @@
 <script>
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, watch } from 'vue'
+import { RouterView } from 'vue-router'
 import SideBar from './components/SideBar.vue'
+import { useAuthStore } from '@/stores/auth'
+
 export default {
+    setup() {
+        const authStore = useAuthStore()
+
+        // Using ref to make the variable reactive
+        const ShowNavbar = ref(authStore.isAuthenticated)
+
+        // Use watch to watch for changes in isAuthenticated
+        watch(
+            () => authStore.isAuthenticated,
+            (newVal) => {
+                ShowNavbar.value = newVal
+            }
+        )
+
+        // Return the data you want to expose to the template
+        return {
+            ShowNavbar
+        }
+    },
+
     components: {
         SideBar
     }
@@ -11,7 +34,8 @@ export default {
 <template>
     <div>
         <div>
-            <SideBar />
+            <!-- Display SideBar only if showSide is true -->
+            <SideBar v-if="ShowNavbar" />
         </div>
         <div>
             <RouterView />
