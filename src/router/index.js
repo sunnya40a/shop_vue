@@ -71,4 +71,5 @@ function authenticatedGuard(to, from, next) {
 // Apply the custom guard to your routes
 router.beforeEach(authenticatedGuard)
 
-export default router
+//export default router
+export { router }

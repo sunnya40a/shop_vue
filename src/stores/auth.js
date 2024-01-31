@@ -4,7 +4,8 @@ export const useAuthStore = defineStore('auth', {
     //id: 'auth',
     state: () => ({
         username: '',
-        authorized: false
+        authorized: false,
+        lastVisitedRoute: ''
     }),
     getters: {
         isAuthenticated() {
@@ -12,6 +13,9 @@ export const useAuthStore = defineStore('auth', {
         },
         getUsername() {
             return this.username
+        },
+        getLastvisitedRoute() {
+            return this.lastVisitedRoute
         }
     },
     actions: {
@@ -20,6 +24,9 @@ export const useAuthStore = defineStore('auth', {
         },
         setAuthorized(authorized) {
             this.authorized = authorized
+        },
+        setLastvisitedRoute(route) {
+            this.lastVisitedRoute = route
         }
     }
 })
