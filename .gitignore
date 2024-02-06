@@ -18,6 +18,7 @@ coverage
 /cypress/screenshots/
 
 # Editor directories and files
+Vue.code-workspace
 .vscode/*
 !.vscode/extensions.json
 .idea

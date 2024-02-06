@@ -1,5 +1,4 @@
 <!-- Components/PurchaseTable.vue -->
-<!-- Components/PurchaseTable.vue -->
 <template>
     <div>
         <h1>Purchase List</h1>
@@ -68,7 +67,7 @@ export default {
 
         const handleDropdown = (items) => {
             selectedItems.value = items // Update selectedItems when dropdown changes
-            console.log('Selected Items:', selectedItems.value)
+            //console.log('Selected Items:', selectedItems.value)
         }
 
         const uniqueUsers = computed(() => {

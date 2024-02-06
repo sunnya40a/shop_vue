@@ -59,7 +59,6 @@ export default {
         })
 
         const authstore = useAuthStore()
-
         const error = ref('')
         const isPasswordVisible = ref(false)
 
@@ -68,6 +67,7 @@ export default {
         }
 
         const router = useRouter()
+        const authToken = localStorage.getItem('authToken')
 
         const login = async () => {
             error.value = ''
@@ -80,11 +80,25 @@ export default {
                         password: input.value.password
                     },
                     {
-                        withCredentials: true
+                        withCredentials: true,
+                        headers: authToken ? { Authorization: authToken } : undefined
                     }
                 )
 
                 if (response.status >= 200 && response.status < 300) {
+                    if (response.data.token) {
+                        const token = response.data.token
+                        localStorage.setItem('authToken', token)
+                        console.log('Received token:', token)
+                    }
+
+                    if (response.data.reftoken) {
+                        const Reftoken = response.data.reftoken
+                        localStorage.setItem('refreshToken', Reftoken)
+                        console.log('Refresh token:', Reftoken)
+                    }
+                    // Log the token to ensure it's obtained correctly
+
                     authstore.setUsername(input.value.username)
                     authstore.setAuthorized(true)
                     console.log('AuthStore:', authstore.isAuthenticated, authstore.getUsername)

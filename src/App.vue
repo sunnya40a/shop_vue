@@ -1,14 +1,14 @@
+// App.vue
 <script>
 import { ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import SideBar from './components/SideBar.vue'
 import { useAuthStore } from '@/stores/auth'
+import { RefreshToken } from './service/refreshtoken'
 
 export default {
     setup() {
         const authStore = useAuthStore()
-
-        // Using ref to make the variable reactive
         const ShowNavbar = ref(authStore.isAuthenticated)
 
         // Use watch to watch for changes in isAuthenticated
@@ -19,7 +19,17 @@ export default {
             }
         )
 
-        // Return the data you want to expose to the template
+        // Initialize RefreshToken with router instance
+        const { refreshToken } = RefreshToken()
+
+        // Setup the interval for token renewal
+        //const intervalId = setInterval(refreshToken, refreshTokenInterval)
+
+        // Clear the interval when the component is about to be destroyed
+        //onBeforeUnmount(() => {
+        //    clearInterval(intervalId)
+        //})
+
         return {
             ShowNavbar
         }

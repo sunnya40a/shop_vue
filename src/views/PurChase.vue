@@ -9,17 +9,18 @@ import PurchaseTable from '../components/PurchaseTable.vue'
 import axios from 'axios'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { parseISO, format } from 'date-fns'
-//import { useAuthStore } from '@/stores/auth'
-
 const isMounted = ref(true)
 const items = ref([])
-//const authstore = useAuthStore()
 
 onMounted(async () => {
-    //authstore.setLastvisitedRoute(window.location.pathname)
-    //console.log(authstore.getLastvisitedRoute)
     try {
-        const response = await axios.get('http://localhost:8000/purchase/list')
+        //const response = await axios.get('http://localhost:8000/purchase/list')
+        const response = await axios.get('http://localhost:8000/purchase/list', {
+            withCredentials: true,
+            headers: {
+                authorization: localStorage.getItem('authToken') // Use the stored token
+            }
+        })
 
         if (isMounted.value) {
             if (response.data) {
@@ -55,14 +56,6 @@ onMounted(async () => {
         }
     }
 })
-
-// // beforeRouteLeave guard
-// const beforeRouteLeave = (to, from, next) => {
-//     if (to !== from) {
-//         authstore.actions.setLastVisitedRoute(from.fullPath)
-//         next()
-//     }
-// }
 
 onUnmounted(() => {
     isMounted.value = false
