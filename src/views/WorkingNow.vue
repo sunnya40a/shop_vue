@@ -1,3 +1,4 @@
+//Purchase.vue
 <template>
     <div style="margin-left: 50px; font-size: 2rem">
         <PurchaseTable :items="items" />
@@ -5,21 +6,22 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import PurchaseTable from '../components/PurchaseTable.vue'
 import axios from 'axios'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { parseISO, format } from 'date-fns'
-import { useAuthStore } from '@/stores/auth'
 const isMounted = ref(true)
 const items = ref([])
-const authstore = useAuthStore()
+const router = useRouter()
+
 onMounted(async () => {
     try {
         //const response = await axios.get('http://localhost:8000/purchase/list')
         const response = await axios.get('http://localhost:8000/purchase/list', {
             withCredentials: true,
             headers: {
-                authorization: authstore.token // Use the stored token
+                authorization: localStorage.getItem('authToken') // Use the stored token
             }
         })
 
@@ -52,7 +54,11 @@ onMounted(async () => {
             }
         }
     } catch (error) {
-        if (isMounted.value) {
+        if (error.response && error.response.status === 401) {
+            // Redirect to login page if unauthorized
+            router.push('/login')
+        } else if (isMounted.value) {
+            // Only log the error if the component is still mounted
             console.error('Error fetching data:', error)
         }
     }

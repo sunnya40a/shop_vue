@@ -47,32 +47,40 @@ import { ref, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { cryptoService } from '@/service/security'
 
 export default {
     name: 'Login',
     emits: ['vnode-unmounted'],
 
     setup(_, { emit, vnode }) {
+        // Define reactive variables using ref()
         const input = ref({
             username: '',
             password: ''
         })
-
-        const authstore = useAuthStore()
         const error = ref('')
         const isPasswordVisible = ref(false)
 
+        // Access the router
+        const router = useRouter()
+
+        // Access the auth store
+        const authstore = useAuthStore()
+
+        // Function to toggle password visibility
         const togglePasswordVisibility = () => {
             isPasswordVisible.value = !isPasswordVisible.value
         }
 
-        const router = useRouter()
-        const authToken = localStorage.getItem('authToken')
-
+        // Function to handle login
         const login = async () => {
-            error.value = ''
-
+            error.value = '' // Reset error message
             try {
+                // Get the token from the auth store
+                const mytoken = authstore.token
+                console.log(mytoken)
+                // Send a POST request to the login endpoint
                 const response = await axios.post(
                     'http://localhost:8000/loginapi',
                     {
@@ -81,33 +89,47 @@ export default {
                     },
                     {
                         withCredentials: true,
-                        headers: authToken ? { Authorization: authToken } : undefined
+                        // Set authorization header if token exists
+                        headers: mytoken ? { Authorization: mytoken } : undefined
                     }
                 )
 
+                // Handle successful login
                 if (response.status >= 200 && response.status < 300) {
-                    if (response.data.token) {
-                        const token = response.data.token
-                        localStorage.setItem('authToken', token)
-                        console.log('Received token:', token)
-                    }
-
-                    if (response.data.reftoken) {
-                        const Reftoken = response.data.reftoken
-                        localStorage.setItem('refreshToken', Reftoken)
-                        console.log('Refresh token:', Reftoken)
-                    }
-                    // Log the token to ensure it's obtained correctly
-
+                    // Update auth store with user information
                     authstore.setUsername(input.value.username)
                     authstore.setAuthorized(true)
-                    console.log('AuthStore:', authstore.isAuthenticated, authstore.getUsername)
+
+                    // Prepare user information for local storage
+                    const authindex = {
+                        user: input.value.username,
+                        authorized: true,
+                        token: authstore.token,
+                        refreshToken: authstore.reftoken
+                    }
+
+                    // Update token and refresh token if received in the response
+                    if (response.data.token) {
+                        authindex.token = response.data.token
+                        authstore.setToken(response.data.token)
+                    }
+                    if (response.data.reftoken) {
+                        authindex.refreshToken = response.data.reftoken
+                        authstore.setRefToken(response.data.reftoken)
+                    }
+
+                    // Save user information to local storage
+                    cryptoService.saveData(authindex, 'userindex')
+
+                    // Redirect to dashboard
                     router.replace({ name: 'dashboard' })
                 } else {
+                    // Handle authentication failure
                     console.error('Authentication failed. Status code:', response.status)
                     error.value = 'Authentication failed. Please check your credentials.'
                 }
             } catch (error) {
+                // Handle errors during authentication
                 if (error.response && error.response.data) {
                     const { status, data } = error.response
                     error.value = `Authentication failed: ${data.message || 'Unknown error.'}`
@@ -118,6 +140,7 @@ export default {
             }
         }
 
+        // Cleanup function
         onBeforeUnmount(() => {
             // Check if vnode is defined before emitting the event
             if (vnode) {
@@ -125,6 +148,7 @@ export default {
             }
         })
 
+        // Return reactive variables and functions to be used in the template
         return {
             input,
             error,

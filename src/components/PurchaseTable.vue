@@ -1,5 +1,4 @@
 <!-- Components/PurchaseTable.vue -->
-<!-- Components/PurchaseTable.vue -->
 <template>
     <div>
         <h1>Purchase List</h1>
@@ -63,7 +62,6 @@ const handleTimefilter = (timefilter) => {
 
 const handleDropdown = (items) => {
     selectedItems.value = items
-    console.log('Selected Items:', selectedItems.value)
 }
 
 const uniqueUsers = computed(() => {

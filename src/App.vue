@@ -1,34 +1,102 @@
 // App.vue
 <script>
-import { ref, watch } from 'vue'
-import { RouterView } from 'vue-router'
-import SideBar from './components/SideBar.vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { RefreshToken } from './service/refreshtoken'
+import { RefreshToken } from '@/service/refreshtoken'
+import { cryptoService } from '@/service/security'
+import { LocalServices } from '@/service/helper'
+import SideBar from './components/SideBar.vue'
+import axios from 'axios'
 
 export default {
     setup() {
+        const router = useRouter() // Import useRouter for logout redirection
         const authStore = useAuthStore()
         const ShowNavbar = ref(authStore.isAuthenticated)
+        let inactivityTimer = ref(undefined) // Add inactivity timer
 
-        // Use watch to watch for changes in isAuthenticated
+        // Functions for inactivity logout
+        const resetInactivityTimer = () => {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer)
+            }
+            inactivityTimer = setTimeout(() => {
+                logoutUser()
+            }, 60000)
+        }
+
+        const logoutUser = async () => {
+            console.log('logout function called from App.vue')
+            console.log('current token:', authStore.token)
+            if (!authStore.isAuthenticated) {
+                console.log('user is not loged in already.')
+                return
+            }
+            try {
+                const usertoken = authStore.token
+                const response = await axios.post(
+                    'http://localhost:8000/logoutapi',
+                    {},
+                    {
+                        withCredentials: true,
+                        headers: {
+                            authorization: usertoken // Use the stored token
+                        }
+                        //My server doesn't do with JWT after logout but logout is protected with JWT and session.
+                    }
+                )
+                if (response.status >= 200 && response.status < 300) {
+                    // Run required cleanup services.
+                    LocalServices.LocalCleanup()
+                    // Redirect to the login page
+                    await router.push({ name: 'Login' })
+                } else {
+                    console.error('Logout failed. Status code:', response.status)
+                    // Handle logout failure
+                }
+            } catch (error) {
+                //console.log('Request Configuration:', error.config)
+                console.error('An error occurred during logout:', error)
+                // Handle logout failure
+            }
+        }
+        // Set up event listeners for inactivity detection
+        onMounted(() => {
+            window.addEventListener('mousemove', resetInactivityTimer)
+            window.addEventListener('keypress', resetInactivityTimer)
+            window.addEventListener('touchstart', resetInactivityTimer)
+            resetInactivityTimer() // Start the timer initially
+        })
+
+        onUnmounted(() => {
+            window.removeEventListener('mousemove', resetInactivityTimer)
+            window.removeEventListener('keypress', resetInactivityTimer)
+            window.removeEventListener('touchstart', resetInactivityTimer)
+            clearTimeout(inactivityTimer)
+        })
+
+        // Watch for authentication changes
         watch(
             () => authStore.isAuthenticated,
             (newVal) => {
-                ShowNavbar.value = newVal
+                if (newVal) {
+                    // If authenticated, set ShowNavbar to true and reset inactivity timer
+                    console.log('Logout Timer Reset')
+                    ShowNavbar.value = true
+                    //resetInactivityTimer()
+                } else {
+                    // If not authenticated, set ShowNavbar to false and clear inactivity timer
+                    console.log('Logout Timer Clear')
+                    ShowNavbar.value = false
+                    clearTimeout(inactivityTimer)
+                }
             }
         )
 
-        // Initialize RefreshToken with router instance
+        // Refresh token logic (unchanged)
         const { refreshToken } = RefreshToken()
-
-        // Setup the interval for token renewal
-        //const intervalId = setInterval(refreshToken, refreshTokenInterval)
-
-        // Clear the interval when the component is about to be destroyed
-        //onBeforeUnmount(() => {
-        //    clearInterval(intervalId)
-        //})
+        // ... (set up interval for token renewal if needed)
 
         return {
             ShowNavbar

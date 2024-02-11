@@ -1,17 +1,27 @@
 // Import necessary dependencies
-import { ref, onMounted, onUnmounted } from 'vue'
+import { watch, ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { cryptoService } from '@/service/security'
 import router from '@/router' // Assuming you have a router instance defined
 
 // Define the RefreshToken function
 export function RefreshToken() {
     // Define necessary variables and references
+    const refreshTokenInterval = 1000 * 60 * 5
     const intervalId = ref(null) // Reference to store the interval ID
     const authStore = useAuthStore() // Get access to the auth store
-    const retrieveRefreshToken = () => localStorage.getItem('refreshToken') // Function to retrieve the refresh token
+
+    const retrieveRefreshToken = () => {
+        let data = cryptoService.getUser()
+        console.log('Ref-token:', data.refreshToken)
+        return data.refreshToken
+    }
+
     const updateAccessToken = (newAccessToken) => {
-        // Function to update the access token in the store
-        localStorage.setItem('authToken', newAccessToken)
+        let savetoken = cryptoService.getUser()
+        savetoken.refreshToken = newAccessToken
+        cryptoService.saveData(savetoken, 'userindex')
+        console.log('New refresh token Saved successfully')
     }
 
     // Function to handle refresh token renewal failure
@@ -20,7 +30,7 @@ export function RefreshToken() {
 
         // Handle different scenarios based on error and response status
         if (error.response && error.response.status === 401) {
-            console.log('Unauthorized. Redirecting to login...')
+            console.log('Refreshing Token Unauthorized. Redirecting to login...')
             // Redirect to the logout page and update auth store
             router.push('/logout')
             authStore.setAuthorized(false)
@@ -34,6 +44,7 @@ export function RefreshToken() {
 
     // Function to refresh the token
     const refreshToken = async () => {
+        console.log('Refresh Token called')
         try {
             const refreshTokenValue = retrieveRefreshToken()
 
@@ -75,14 +86,35 @@ export function RefreshToken() {
         }
     }
 
-    // Set up the interval for token refresh on component mount
+    const setupInterval = () => {
+        if (authStore.isAuthenticated) {
+            console.log('Token refresh Timer Reset')
+            intervalId.value = setInterval(refreshToken, refreshTokenInterval)
+        }
+    }
+
+    const teardownInterval = () => {
+        console.log('Token refresh Timer clear')
+        clearInterval(intervalId.value)
+    }
+
     onMounted(() => {
-        intervalId.value = setInterval(refreshToken, refreshTokenInterval)
+        setupInterval()
     })
 
-    // Clear the interval on component unmount
+    watch(
+        () => authStore.isAuthenticated,
+        (newValue) => {
+            if (newValue) {
+                setupInterval()
+            } else {
+                teardownInterval()
+            }
+        }
+    )
+
     onUnmounted(() => {
-        clearInterval(intervalId.value)
+        teardownInterval()
     })
 
     // Return the refreshToken function
@@ -90,4 +122,4 @@ export function RefreshToken() {
 }
 
 // Define the interval for token refresh (5 minutes)
-export const refreshTokenInterval = 1000 * 60 * 5
+//export const refreshTokenInterval = 1000 * 60 * 5
