@@ -11,12 +11,14 @@ export const LocalServices = {
             userData.user = null
             //userData.token = null
             //userData.refreshToken = null
+            userData.refreshTime = null
             cryptoService.saveData(userData, 'userindex')
         }
-        authStore.setUsername(null)
+        authStore.setUsername('')
         authStore.setAuthorized(false)
-        authStore.setToken(null)
-        authStore.setRefToken(null)
+        authStore.setToken('')
+        authStore.setRefToken('')
+        authStore.setRefTime(0)
         //localStorage.removeItem('userindex', 'True')
         console.log('local_Cleanup Done.')
         console.log('AuthStore:', authStore.isAuthenticated, authStore.getUsername)

@@ -7,20 +7,21 @@ import router from '@/router' // Assuming you have a router instance defined
 // Define the RefreshToken function
 export function RefreshToken() {
     // Define necessary variables and references
-    const refreshTokenInterval = 1000 * 60 * 5
+    const refreshTokenInterval = 1000 * 60 * 0.5
     const intervalId = ref(null) // Reference to store the interval ID
     const authStore = useAuthStore() // Get access to the auth store
 
     const retrieveRefreshToken = () => {
-        let data = cryptoService.getUser()
-        console.log('Ref-token:', data.refreshToken)
-        return data.refreshToken
+        return authStore.reftoken
     }
 
     const updateAccessToken = (newAccessToken) => {
         let savetoken = cryptoService.getUser()
-        savetoken.refreshToken = newAccessToken
+        savetoken.token = newAccessToken
+        savetoken.refreshTime = new Date().setMinutes(new Date().getMinutes() + 1)
         cryptoService.saveData(savetoken, 'userindex')
+        authStore.setToken(newAccessToken)
+        authStore.setRefTime(new Date().setMinutes(new Date().getMinutes() + 1))
         console.log('New refresh token Saved successfully')
     }
 
@@ -87,15 +88,26 @@ export function RefreshToken() {
     }
 
     const setupInterval = () => {
+        console.log(new Date(authStore.reftime).toLocaleString())
+
         if (authStore.isAuthenticated) {
-            console.log('Token refresh Timer Reset')
-            intervalId.value = setInterval(refreshToken, refreshTokenInterval)
+            intervalId.value = setInterval(refreshtokenCheck, refreshTokenInterval)
         }
     }
 
     const teardownInterval = () => {
         console.log('Token refresh Timer clear')
         clearInterval(intervalId.value)
+    }
+
+    const refreshtokenCheck = () => {
+        const reftime = authStore.reftime
+        if (reftime - new Date() <= 2) {
+            console.log('Token refresh processed')
+            refreshToken()
+        } else {
+            console.log('Token refresh ignored')
+        }
     }
 
     onMounted(() => {
@@ -120,6 +132,3 @@ export function RefreshToken() {
     // Return the refreshToken function
     return { refreshToken }
 }
-
-// Define the interval for token refresh (5 minutes)
-//export const refreshTokenInterval = 1000 * 60 * 5

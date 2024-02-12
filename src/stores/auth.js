@@ -5,8 +5,9 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         username: '',
         authorized: false,
-        token: null,
-        reftoken: null
+        token: '',
+        reftoken: '',
+        reftime: new Date()
     }),
     getters: {
         isAuthenticated() {
@@ -18,11 +19,14 @@ export const useAuthStore = defineStore('auth', {
         getToken() {
             return this.token
         },
-
-        getRefToken: (state) => state.reftoken
-        // getRefToken() {
-        //     return this.reftoken
-        // }
+        getRefToken() {
+            return this.reftoken
+        },
+        getRefTime() {
+            return this.reftime
+        }
+        //below is arowkey function.
+        //        getRefToken: (state) => state.reftoken,
     },
     actions: {
         setUsername(newUsername) {
@@ -36,6 +40,9 @@ export const useAuthStore = defineStore('auth', {
         },
         setRefToken(ref_token) {
             this.reftoken = ref_token
+        },
+        setRefTime(time) {
+            this.reftime = time
         }
     }
 })

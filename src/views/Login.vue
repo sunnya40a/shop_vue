@@ -101,11 +101,13 @@ export default {
                     authstore.setAuthorized(true)
 
                     // Prepare user information for local storage
+                    authstore.setRefTime(new Date().setMinutes(new Date().getMinutes() + 1))
                     const authindex = {
                         user: input.value.username,
                         authorized: true,
                         token: authstore.token,
-                        refreshToken: authstore.reftoken
+                        refreshToken: authstore.reftoken,
+                        refreshTime: authstore.reftime
                     }
 
                     // Update token and refresh token if received in the response
