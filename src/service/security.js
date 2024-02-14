@@ -90,34 +90,35 @@ export const cryptoService = {
             let authorized = false
             let token = null
             let refreshToken = null
+            let refreshTime = 0
 
             // Check if `authindex` has `user` property
             if (authindex.user !== undefined) {
                 user = authindex.user
             }
-            //console.log('user ' + user)
             // Check if `authindex` has `authorized` property
             if (authindex.authorized !== undefined) {
                 authorized = authindex.authorized
             }
-            //console.log('authorized ' + authorized)
             // Check if `authindex` has `token` property
             if (authindex.token !== undefined) {
                 token = authindex.token
             }
-            //console.log('token ' + token)
             // Check if `authindex` has `refreshToken` property
             if (authindex.refreshToken !== undefined) {
                 refreshToken = authindex.refreshToken
             }
-            //console.log('refreshToken ' + refreshToken)
+            if (authindex.refreshTime !== undefined) {
+                refreshTime = authindex.refreshTime
+            }
 
             // Return an object containing user, authorized, token, and refreshToken
             return {
                 user,
                 authorized,
                 token,
-                refreshToken
+                refreshToken,
+                refreshTime
             }
         }
 

@@ -42,12 +42,14 @@
         <p v-if="error" class="error-message">{{ error }}</p>
     </div>
 </template>
+
 <script>
 import { ref, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { cryptoService } from '@/service/security'
+import { getTokenRefreshMin, HandleTokenValidity } from '@/service/loginhelper'
 
 export default {
     name: 'Login',
@@ -61,12 +63,10 @@ export default {
         })
         const error = ref('')
         const isPasswordVisible = ref(false)
-
         // Access the router
         const router = useRouter()
-
         // Access the auth store
-        const authstore = useAuthStore()
+        const authStore = useAuthStore()
 
         // Function to toggle password visibility
         const togglePasswordVisibility = () => {
@@ -76,10 +76,14 @@ export default {
         // Function to handle login
         const login = async () => {
             error.value = '' // Reset error message
+
+            // Check if refresh token exists
+            if (!authStore.reftoken) {
+                authStore.setToken(null)
+            }
+            const mytoken = authStore.token
+
             try {
-                // Get the token from the auth store
-                const mytoken = authstore.token
-                console.log(mytoken)
                 // Send a POST request to the login endpoint
                 const response = await axios.post(
                     'http://localhost:8000/loginapi',
@@ -96,30 +100,29 @@ export default {
 
                 // Handle successful login
                 if (response.status >= 200 && response.status < 300) {
-                    // Update auth store with user information
-                    authstore.setUsername(input.value.username)
-                    authstore.setAuthorized(true)
-
                     // Prepare user information for local storage
-                    authstore.setRefTime(new Date().setMinutes(new Date().getMinutes() + 1))
+                    if (response.data.token) {
+                        authStore.setToken(response.data.token)
+                    }
+                    let refTime = 0
+                    if (response.data.reftoken) {
+                        authStore.setRefToken(response.data.reftoken)
+                        refTime = getTokenRefreshMin(authStore.token)
+                    } else {
+                        refTime = await HandleTokenValidity(mytoken) // Call async function
+                    }
+
+                    // Set refresh time
+                    authStore.setRefTime(new Date().setMinutes(new Date().getMinutes() + refTime))
+
+                    // Prepare user index for local storage
                     const authindex = {
                         user: input.value.username,
                         authorized: true,
-                        token: authstore.token,
-                        refreshToken: authstore.reftoken,
-                        refreshTime: authstore.reftime
+                        token: authStore.token,
+                        refreshToken: authStore.reftoken,
+                        refreshTime: authStore.reftime
                     }
-
-                    // Update token and refresh token if received in the response
-                    if (response.data.token) {
-                        authindex.token = response.data.token
-                        authstore.setToken(response.data.token)
-                    }
-                    if (response.data.reftoken) {
-                        authindex.refreshToken = response.data.reftoken
-                        authstore.setRefToken(response.data.reftoken)
-                    }
-
                     // Save user information to local storage
                     cryptoService.saveData(authindex, 'userindex')
 
@@ -155,7 +158,7 @@ export default {
             input,
             error,
             isPasswordVisible,
-            authstore,
+            authStore,
             togglePasswordVisibility,
             login
         }

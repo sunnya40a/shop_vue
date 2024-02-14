@@ -4,7 +4,7 @@
 
 <script>
 import { useRouter } from 'vue-router'
-import { LocalServices } from '@/service/helper'
+import { LocalCleanup } from '@/service/helper'
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
@@ -31,7 +31,7 @@ export default {
                 )
                 if (response.status >= 200 && response.status < 300) {
                     // Run required cleanup services.
-                    LocalServices.LocalCleanup()
+                    LocalCleanup()
                     // Redirect to the login page
                     await router.push({ name: 'Login' })
                 } else {

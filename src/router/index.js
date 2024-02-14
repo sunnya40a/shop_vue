@@ -51,7 +51,6 @@ const router = createRouter({
 // Define the custom guard function
 function authenticatedGuard(to, from, next) {
     const userData = cryptoService.getUser()
-    //console.log(userData)
     const authStore = useAuthStore()
     if (userData) {
         // Check if `userData` has value
@@ -60,6 +59,7 @@ function authenticatedGuard(to, from, next) {
         authStore.setAuthorized(userData.authorized)
         authStore.setToken(userData.token)
         authStore.setRefToken(userData.refreshToken)
+        authStore.setRefTime(userData.refreshTime)
     } else {
         // Handle case where data could not be retrieved
         // Update Vuex store with default values
@@ -67,9 +67,8 @@ function authenticatedGuard(to, from, next) {
         authStore.setAuthorized(false)
         authStore.setToken('')
         authStore.setRefToken('')
+        authStore.setRefTime(0)
     }
-    console.log('user', authStore.getUsername)
-    console.log('Token', authStore.getRefToken)
 
     // Check if the route requires authentication
     if (to.matched.some((record) => record.meta.requiresAuth)) {

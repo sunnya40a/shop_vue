@@ -3,35 +3,36 @@ import { watch, ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { cryptoService } from '@/service/security'
 import router from '@/router' // Assuming you have a router instance defined
+import { getTokenRefreshMin } from '@/service/loginhelper'
 
 // Define the RefreshToken function
 export function RefreshToken() {
     // Define necessary variables and references
-    const refreshTokenInterval = 1000 * 60 * 0.5
+    const refreshTokenInterval = 1000 * 60 * 0.75
     const intervalId = ref(null) // Reference to store the interval ID
     const authStore = useAuthStore() // Get access to the auth store
 
-    const retrieveRefreshToken = () => {
-        return authStore.reftoken
-    }
+    // Function to retrieve the refresh token
+    const retrieveRefreshToken = () => authStore.reftoken
 
+    // Function to update the access token
     const updateAccessToken = (newAccessToken) => {
-        let savetoken = cryptoService.getUser()
+        const savetoken = cryptoService.getUser()
         savetoken.token = newAccessToken
-        savetoken.refreshTime = new Date().setMinutes(new Date().getMinutes() + 1)
+        const reftime = getTokenRefreshMin(newAccessToken)
+        savetoken.refreshTime = new Date().setMinutes(new Date().getMinutes() + reftime)
         cryptoService.saveData(savetoken, 'userindex')
         authStore.setToken(newAccessToken)
-        authStore.setRefTime(new Date().setMinutes(new Date().getMinutes() + 1))
-        console.log('New refresh token Saved successfully')
+        authStore.setRefTime(new Date().setMinutes(new Date().getMinutes() + reftime))
+        console.log('New token saved successfully')
     }
 
     // Function to handle refresh token renewal failure
     const handleRefreshTokenFailure = (error) => {
-        console.error('Refresh token renewal failed:', error)
+        console.error('Token renewal failed:', error)
 
         // Handle different scenarios based on error and response status
         if (error.response && error.response.status === 401) {
-            console.log('Refreshing Token Unauthorized. Redirecting to login...')
             // Redirect to the logout page and update auth store
             router.push('/logout')
             authStore.setAuthorized(false)
@@ -45,7 +46,6 @@ export function RefreshToken() {
 
     // Function to refresh the token
     const refreshToken = async () => {
-        console.log('Refresh Token called')
         try {
             const refreshTokenValue = retrieveRefreshToken()
 
@@ -87,33 +87,47 @@ export function RefreshToken() {
         }
     }
 
+    // Function to set up the refresh token interval
     const setupInterval = () => {
-        console.log(new Date(authStore.reftime).toLocaleString())
-
-        if (authStore.isAuthenticated) {
-            intervalId.value = setInterval(refreshtokenCheck, refreshTokenInterval)
+        if (intervalId.value) {
+            clearInterval(intervalId.value) // Clear the existing interval
         }
+        intervalId.value = setInterval(refreshtokenCheck, refreshTokenInterval) // Set the new interval
     }
 
+    // Function to clear the refresh token interval
     const teardownInterval = () => {
-        console.log('Token refresh Timer clear')
         clearInterval(intervalId.value)
     }
 
+    // Function to check and refresh token if necessary
     const refreshtokenCheck = () => {
         const reftime = authStore.reftime
-        if (reftime - new Date() <= 2) {
-            console.log('Token refresh processed')
+        if (new Date(reftime) - new Date() <= 1.5 * 60 * 1000) {
+            // 1.5 min
+            console.log(
+                'Token refresh called [' +
+                    new Date().toLocaleTimeString() +
+                    '] Exp: ' +
+                    new Date(reftime).toLocaleString()
+            )
             refreshToken()
         } else {
-            console.log('Token refresh ignored')
+            console.log(
+                'Token refresh ignored[' +
+                    new Date().toLocaleTimeString() +
+                    '] Exp: ' +
+                    new Date(reftime).toLocaleString()
+            )
         }
     }
 
+    // Hook to set up the interval on component mount
     onMounted(() => {
         setupInterval()
     })
 
+    // Watcher to handle changes in authentication status
     watch(
         () => authStore.isAuthenticated,
         (newValue) => {
@@ -125,6 +139,7 @@ export function RefreshToken() {
         }
     )
 
+    // Hook to clear the interval on component unmount
     onUnmounted(() => {
         teardownInterval()
     })

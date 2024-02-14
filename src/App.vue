@@ -4,51 +4,60 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { RefreshToken } from '@/service/refreshtoken'
-import { cryptoService } from '@/service/security'
-import { LocalServices } from '@/service/helper'
+import { LocalCleanup } from '@/service/helper'
 import SideBar from './components/SideBar.vue'
 import axios from 'axios'
 
 export default {
     setup() {
-        const router = useRouter() // Import useRouter for logout redirection
-        const authStore = useAuthStore()
-        const ShowNavbar = ref(authStore.isAuthenticated)
-        let inactivityTimer = ref(undefined) // Add inactivity timer
+        // Router instance for navigation
+        const router = useRouter()
 
-        // Functions for inactivity logout
+        // Access the authentication store
+        const authStore = useAuthStore()
+
+        // Flag to control visibility of the navbar
+        const ShowNavbar = ref(authStore.isAuthenticated)
+
+        // Timer for inactivity logout
+        let inactivityTimer = ref(undefined)
+
+        // Reset inactivity timer
         const resetInactivityTimer = () => {
             if (inactivityTimer) {
                 clearTimeout(inactivityTimer)
             }
+            // Set timeout for logout after 5 minutes of inactivity
             inactivityTimer = setTimeout(() => {
                 logoutUser()
-            }, 60000)
+            }, 60000 * 1) // 5 minutes
         }
 
+        // Logout user function
         const logoutUser = async () => {
             console.log('logout function called from App.vue')
             console.log('current token:', authStore.token)
+            // Check if user is authenticated
             if (!authStore.isAuthenticated) {
-                console.log('user is not loged in already.')
+                console.log('User is not logged in!!!')
                 return
             }
             try {
                 const usertoken = authStore.token
+                // Logout request to the server
                 const response = await axios.post(
                     'http://localhost:8000/logoutapi',
                     {},
                     {
                         withCredentials: true,
                         headers: {
-                            authorization: usertoken // Use the stored token
+                            authorization: usertoken
                         }
-                        //My server doesn't do with JWT after logout but logout is protected with JWT and session.
                     }
                 )
                 if (response.status >= 200 && response.status < 300) {
-                    // Run required cleanup services.
-                    LocalServices.LocalCleanup()
+                    // Run cleanup services
+                    LocalCleanup()
                     // Redirect to the login page
                     await router.push({ name: 'Login' })
                 } else {
@@ -56,19 +65,21 @@ export default {
                     // Handle logout failure
                 }
             } catch (error) {
-                //console.log('Request Configuration:', error.config)
                 console.error('An error occurred during logout:', error)
                 // Handle logout failure
             }
         }
-        // Set up event listeners for inactivity detection
+
+        // Add event listeners for inactivity detection
         onMounted(() => {
             window.addEventListener('mousemove', resetInactivityTimer)
-            window.addEventListener('keypress', resetInactivityTimer)
+            window.addEventListener('keydown', resetInactivityTimer)
             window.addEventListener('touchstart', resetInactivityTimer)
-            resetInactivityTimer() // Start the timer initially
+            // Start the timer initially
+            resetInactivityTimer()
         })
 
+        // Remove event listeners on component unmount
         onUnmounted(() => {
             window.removeEventListener('mousemove', resetInactivityTimer)
             window.removeEventListener('keypress', resetInactivityTimer)
@@ -82,21 +93,18 @@ export default {
             (newVal) => {
                 if (newVal) {
                     // If authenticated, set ShowNavbar to true and reset inactivity timer
-                    console.log('Logout Timer Reset')
                     ShowNavbar.value = true
-                    //resetInactivityTimer()
+                    resetInactivityTimer()
                 } else {
                     // If not authenticated, set ShowNavbar to false and clear inactivity timer
-                    console.log('Logout Timer Clear')
                     ShowNavbar.value = false
                     clearTimeout(inactivityTimer)
                 }
             }
         )
 
-        // Refresh token logic (unchanged)
+        // Refresh token logic
         const { refreshToken } = RefreshToken()
-        // ... (set up interval for token renewal if needed)
 
         return {
             ShowNavbar
