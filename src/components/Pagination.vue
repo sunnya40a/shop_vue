@@ -110,7 +110,7 @@ export default {
     background-color: #9df1af;
     align-items: center;
     margin-top: 0px;
-    //margin-left: 50px;
+    // margin-left: 50px;
 
     div {
         // Styling for the child divs
