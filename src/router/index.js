@@ -23,6 +23,18 @@ const router = createRouter({
             meta: { requiresAuth: true }
         },
         {
+            path: '/ptable',
+            name: 'ptable',
+            component: () => import('../views/pluginTable.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/table',
+            name: 'table',
+            component: () => import('../views/table.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
             path: '/category',
             name: 'category',
             component: () => import('../views/category.vue'),

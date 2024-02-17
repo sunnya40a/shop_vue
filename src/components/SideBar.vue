@@ -71,6 +71,19 @@ export default {
                     link: '/category'
                 },
                 {
+                    title: 'Table',
+                    icon: 'address-card',
+                    open: false,
+                    link: '/table'
+                },
+                {
+                    title: 'Plug Table',
+                    icon: 'address-card',
+                    open: false,
+                    link: '/ptable'
+                },
+
+                {
                     title: 'Logout',
                     icon: 'address-card',
                     open: false,

@@ -30,7 +30,7 @@ export default {
             // Set timeout for logout after 5 minutes of inactivity
             inactivityTimer = setTimeout(() => {
                 logoutUser()
-            }, 60000 * 1) // 5 minutes
+            }, 60000 * 10) // 10 minutes
         }
 
         // Logout user function

@@ -35,10 +35,18 @@
                 </tr>
             </tbody>
         </table>
+        <Pagination
+            :current-page="currentPage"
+            :total-page-count="totalPageCount"
+            :per-page.sync="limit"
+            @page-change="handlePageChange"
+            @per-page-change="handlePerPageChange"
+        />
     </div>
 </template>
 
 <script setup>
+import Pagination from './Pagination.vue'
 import SearchComp from '@/components/SearchComp.vue'
 import FilterRadios from '@/components/FilterRadios.vue'
 import FilterDropdown from './FilterDropdown.vue'
@@ -51,9 +59,22 @@ const props = defineProps(['items', 'timefilter', 'dropfilter'])
 const filterterm = ref('')
 const searchTerm = ref('')
 const selectedItems = ref([])
+const currentPage = ref(1)
+const limit = ref(5)
+const totalPageCount = computed(() => Math.ceil(filteredItems.value.length / limit.value))
 
 const handleSearch = (search) => {
     searchTerm.value = search
+    currentPage.value = 1
+}
+const handlePageChange = (pageNumber) => {
+    currentPage.value = pageNumber
+    //this.fetchData()
+}
+const handlePerPageChange = (perPage) => {
+    limit.value = perPage
+    currentPage.value = 1
+    //this.fetchData()
 }
 
 const handleTimefilter = (timefilter) => {
