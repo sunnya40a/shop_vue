@@ -91,6 +91,7 @@
             :current-page="currentPage"
             :total-page-count="totalPageCount"
             :per-page.sync="limit"
+            :totalRecords="totalRecords"
             @page-change="handlePageChange"
             @per-page-change="handlePerPageChange"
         />
@@ -106,7 +107,8 @@ export default {
             data: null,
             currentPage: 1,
             totalPageCount: 1,
-            limit: 5,
+            limit: 20,
+            totalRecords: 0,
             sortByField: 'PO', // Default sorting field
             sortDirection: 'asc', // Default sorting direction
             searchQuery: '' // Initialize search query
@@ -148,10 +150,11 @@ export default {
         async fetchData() {
             try {
                 const response = await fetch(
-                    `http://localhost:8000/listpage?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`
+                    `http://localhost:8000/test?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`
                 )
                 const responseData = await response.json()
                 this.data = responseData.Data
+                this.totalRecords = responseData.TotalRecords
                 this.totalPageCount = Math.ceil(responseData.TotalRecords / this.limit)
             } catch (error) {
                 console.error('Error fetching data:', error)

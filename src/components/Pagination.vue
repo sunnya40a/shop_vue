@@ -12,6 +12,7 @@
             <!-- Pagination items here -->
             <!-- First Page -->
             <span class="pagenumber"> Page {{ currentPage }} of {{ totalPageCount }} </span>
+            <span class="Records">(Total Records:{{ totalRecords }})</span>
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link" href="#" @click.prevent="firstPage">
                     <span class="material-symbols-outlined"> first_page </span>
@@ -68,6 +69,10 @@ export default {
         perPage: {
             type: Number,
             required: true
+        },
+        totalRecords: {
+            type: Number,
+            required: true
         }
     },
     data() {
@@ -119,6 +124,7 @@ export default {
     .results-per-page {
         display: flex;
         align-items: center;
+        font-size: 15px;
         /* ... other styles */
     }
 
@@ -127,6 +133,12 @@ export default {
         list-style: none;
         padding: 0;
         font-size: 20px;
+        .Records {
+            font-size: 15px;
+            color: gray;
+            margin-right: 10px;
+            margin-left: 10px;
+        }
         .pagenumber {
             font-size: 15px;
             color: gray;
