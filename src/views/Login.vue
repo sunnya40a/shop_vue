@@ -45,7 +45,6 @@
 
 <script>
 import { ref, onBeforeUnmount } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { cryptoService } from '@/service/security'
@@ -85,28 +84,34 @@ export default {
 
             try {
                 // Send a POST request to the login endpoint
-                const response = await axios.post(
-                    'http://localhost:8000/loginapi',
-                    {
+                const response = await fetch('http://localhost:8000/loginapi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(mytoken && { 'Authorization': mytoken })
+                    },
+                    body: JSON.stringify({
                         username: input.value.username,
                         password: input.value.password
-                    },
-                    {
-                        withCredentials: true,
-                        // Set authorization header if token exists
-                        headers: mytoken ? { Authorization: mytoken } : undefined
-                    }
-                )
+                    }),
+                    credentials: 'include'
+                })
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+
+                const responseData = await response.json()
 
                 // Handle successful login
                 if (response.status >= 200 && response.status < 300) {
                     // Prepare user information for local storage
-                    if (response.data.token) {
-                        authStore.setToken(response.data.token)
+                    if (responseData.token) {
+                        authStore.setToken(responseData.token)
                     }
                     let refTime = 0
-                    if (response.data.reftoken) {
-                        authStore.setRefToken(response.data.reftoken)
+                    if (responseData.reftoken) {
+                        authStore.setRefToken(responseData.reftoken)
                         refTime = getTokenRefreshMin(authStore.token)
                     } else {
                         refTime = await HandleTokenValidity(mytoken) // Call async function
@@ -135,13 +140,8 @@ export default {
                 }
             } catch (error) {
                 // Handle errors during authentication
-                if (error.response && error.response.data) {
-                    const { status, data } = error.response
-                    error.value = `Authentication failed: ${data.message || 'Unknown error.'}`
-                } else {
-                    console.error('An error occurred during authentication:', error)
-                    error.value = 'An error occurred during authentication. Please try again.'
-                }
+                console.error('An error occurred during authentication:', error)
+                error.value = 'An error occurred during authentication. Please try again.'
             }
         }
 
@@ -165,6 +165,7 @@ export default {
     }
 }
 </script>
+
 
 <style lang="scss">
 #login {

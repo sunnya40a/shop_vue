@@ -7,7 +7,6 @@ import { useRouter } from 'vue-router'
 import { LocalCleanup } from '@/service/helper'
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
 
 export default {
     setup() {
@@ -18,28 +17,25 @@ export default {
             try {
                 isLoggingOut.value = true
                 const usertoken = authstore.token
-                const response = await axios.post(
-                    'http://localhost:8000/logoutapi',
-                    {},
-                    {
-                        withCredentials: true,
-                        headers: {
-                            authorization: usertoken // Use the stored token
-                        }
-                        //My server doesn't do with JWT after logout but logout is protected with JWT and session.
-                    }
-                )
-                if (response.status >= 200 && response.status < 300) {
-                    // Run required cleanup services.
-                    LocalCleanup()
-                    // Redirect to the login page
-                    await router.push({ name: 'Login' })
-                } else {
-                    console.error('Logout failed. Status code:', response.status)
-                    // Handle logout failure
+
+                const response = await fetch('http://localhost:8000/logoutapi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': usertoken // Use the stored token
+                    },
+                    credentials: 'include'
+                })
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
                 }
+
+                // Assuming successful logout if the response is OK
+                LocalCleanup()
+                // Redirect to the login page
+                await router.push({ name: 'Login' })
             } catch (error) {
-                //console.log('Request Configuration:', error.config)
                 console.error('An error occurred during logout:', error)
                 // Handle logout failure
             } finally {
@@ -48,10 +44,6 @@ export default {
         }
 
         onMounted(() => {
-            // Assuming your server sends the token in the response
-            // You may need to adjust this based on your actual server response
-            // For example, if the token is in response.data.token, update token.value accordingly
-            //token.value = 'your_received_token'
             logout()
         })
 
@@ -59,3 +51,4 @@ export default {
     }
 }
 </script>
+

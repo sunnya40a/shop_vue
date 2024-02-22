@@ -102,6 +102,7 @@ import Pagination from '@/components/Pagination.vue'
 import SearchComp from '@/components/SearchComp.vue'
 import DateRange from '@/components/DateRange.vue'
 import { parseISO, format } from 'date-fns'
+import { useAuthStore } from '@/stores/auth'
 
 // Reactive variables
 const data = ref(null)
@@ -115,7 +116,7 @@ const sortDirection = ref('asc') // Default sorting direction
 const searchQuery = ref('') // Initialize search query
 const fromDate = ref('')
 const toDate = ref('')
-
+const authstore = useAuthStore()
 // Computed properties
 const filteredData = computed(() => {
     if (!data.value) return null
@@ -150,10 +151,30 @@ const sortedData = computed(() => {
 const fetchData = async () => {
     try {
         const response = await fetch(
-            `http://localhost:8000/test?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`
+            `http://localhost:8000/purchase/list?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    authorization: authstore.token // Use the stored token
+                },
+                credentials: 'include'
+            }
         )
+
         const responseData = await response.json()
-        data.value = responseData.Data
+
+        if (responseData.Data !== null) {
+            // Check if responseData.Data is not null
+            // Format Pdate to YY/MM/DD format
+            responseData.Data.forEach((item) => {
+                item.Pdate = format(parseISO(item.Pdate), 'dd-MMM-yy')
+            })
+
+            data.value = responseData.Data
+        } else {
+            data.value = []
+        }
         totalRecords.value = responseData.TotalRecords
         totalPageCount.value = Math.ceil(responseData.TotalRecords / limit.value)
     } catch (error) {

@@ -100,6 +100,7 @@
 
 <script>
 import Pagination from '@/components/Pagination.vue'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
     data() {
@@ -111,7 +112,8 @@ export default {
             totalRecords: 0,
             sortByField: 'PO', // Default sorting field
             sortDirection: 'asc', // Default sorting direction
-            searchQuery: '' // Initialize search query
+            searchQuery: '', // Initialize search query
+            authstore: useAuthStore()
         }
     },
     computed: {
@@ -150,7 +152,15 @@ export default {
         async fetchData() {
             try {
                 const response = await fetch(
-                    `http://localhost:8000/test?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`
+                    `http://localhost:8000/purchase/list?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            authorization: this.authstore.token // Use the stored token
+                        },
+                        credentials: 'include'
+                    }
                 )
                 const responseData = await response.json()
                 this.data = responseData.Data

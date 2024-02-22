@@ -11,7 +11,9 @@
         <div class="pagination">
             <!-- Pagination items here -->
             <!-- First Page -->
-            <span class="pagenumber"> Page {{ currentPage }} of {{ totalPageCount }} </span>
+            <span v-if="totalRecords > 0" class="pagenumber"
+                >Page {{ currentPage }} of {{ totalPageCount }}</span
+            >
             <span class="Records">(Total Records:{{ totalRecords }})</span>
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link" href="#" @click.prevent="firstPage">

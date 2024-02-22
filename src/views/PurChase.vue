@@ -6,27 +6,34 @@
 
 <script setup>
 import PurchaseTable from '../components/PurchaseTable.vue'
-import axios from 'axios'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { parseISO, format } from 'date-fns'
 import { useAuthStore } from '@/stores/auth'
+
 const isMounted = ref(true)
 const items = ref([])
 const authstore = useAuthStore()
+
 onMounted(async () => {
     try {
-        //const response = await axios.get('http://localhost:8000/purchase/list')
-        const response = await axios.get('http://localhost:8000/purchase/list', {
-            withCredentials: true,
+        const response = await fetch('http://localhost:8000/purchase/list', {
+            method: 'GET',
+            credentials: 'include',
             headers: {
-                authorization: authstore.token // Use the stored token
+                'Content-Type': 'application/json',
+                'authorization': authstore.token // Use the stored token
             }
         })
 
-        if (isMounted.value) {
-            if (response.data) {
-                items.value = response.data
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
+        const responseData = await response.json()
+
+        if (isMounted.value) {
+            if (responseData.Data) {
+                items.value = responseData.Data
                 // Modify the Pdate field for each item using date-fns
                 items.value = items.value.map((item) => {
                     try {
@@ -46,7 +53,7 @@ onMounted(async () => {
                 })
 
                 // Uncomment the following line if you want to see the modified items
-                // console.log(items.value);
+                // console.log(items.value)
             } else {
                 console.error('Error: response data is not defined.')
             }
