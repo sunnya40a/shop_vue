@@ -1,5 +1,5 @@
 <template>
-    <div style="align=center" v-if="isLoggingOut">Logging out...</div>
+    <div v-if="isLoggingOut" class="centered-message">Logging out...</div>
 </template>
 
 <script>
@@ -18,11 +18,12 @@ export default {
                 isLoggingOut.value = true
                 const usertoken = authstore.token
 
-                const response = await fetch('http://localhost:8000/logoutapi', {
+                const response = await fetch('https://localhost:8000/logoutapi', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'authorization': usertoken // Use the stored token
+                        authorization: authstore.token, // Use the stored token
+                        'X-CSRF-Token': authstore.ctoken
                     },
                     credentials: 'include'
                 })
@@ -52,3 +53,13 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+.centered-message {
+    /* Center the message horizontally and vertically */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Add additional styling if needed */
+}
+</style>

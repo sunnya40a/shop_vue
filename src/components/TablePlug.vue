@@ -151,12 +151,13 @@ const sortedData = computed(() => {
 const fetchData = async () => {
     try {
         const response = await fetch(
-            `http://localhost:8000/purchase/list?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`,
+            `https://localhost:8000/test?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`,
             {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    authorization: authstore.token // Use the stored token
+                    authorization: authstore.token, // Use the stored token
+                    'X-CSRF-Token': authstore.ctoken
                 },
                 credentials: 'include'
             }

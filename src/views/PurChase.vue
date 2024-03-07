@@ -16,12 +16,13 @@ const authstore = useAuthStore()
 
 onMounted(async () => {
     try {
-        const response = await fetch('http://localhost:8000/purchase/list', {
+        const response = await fetch('https://localhost:8000/purchase/list', {
             method: 'GET',
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': authstore.token // Use the stored token
+                authorization: authstore.token, // Use the stored token
+                'X-CSRF-Token': authstore.ctoken
             }
         })
 

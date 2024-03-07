@@ -64,13 +64,20 @@ const router = createRouter({
 function authenticatedGuard(to, from, next) {
     const userData = cryptoService.getUser()
     const authStore = useAuthStore()
+
     if (userData) {
+        // console.log('userData fields:')
+        // Object.keys(userData).forEach((key) => {
+        //     console.log(`${key}: ${userData[key]}`)
+        // })
+
         // Check if `userData` has value
         // Update Pinia store with the retrieved data
         authStore.setUsername(userData.user)
         authStore.setAuthorized(userData.authorized)
         authStore.setToken(userData.token)
         authStore.setRefToken(userData.refreshToken)
+        authStore.setCtoken(userData.ctoken)
         authStore.setRefTime(userData.refreshTime)
     } else {
         // Handle case where data could not be retrieved
@@ -79,6 +86,7 @@ function authenticatedGuard(to, from, next) {
         authStore.setAuthorized(false)
         authStore.setToken('')
         authStore.setRefToken('')
+        authStore.setCtoken('')
         authStore.setRefTime(0)
     }
 

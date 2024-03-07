@@ -152,12 +152,13 @@ export default {
         async fetchData() {
             try {
                 const response = await fetch(
-                    `http://localhost:8000/purchase/list?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`,
+                    `https://localhost:8000/purchase/list?page=${this.currentPage}&limit=${this.limit}&search=${this.searchQuery}&sortBy=${this.sortByField}&sortOrder=${this.sortDirection}`,
                     {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            authorization: this.authstore.token // Use the stored token
+                            authorization: this.authstore.token, // Use the stored token
+                            'X-CSRF-Token': this.authstore.ctoken
                         },
                         credentials: 'include'
                     }

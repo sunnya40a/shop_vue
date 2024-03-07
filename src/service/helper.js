@@ -8,8 +8,9 @@ export function LocalCleanup() {
         // Check if `userData` has value
         userData.authorized = false
         userData.user = null
-        //userData.token = null
-        //userData.refreshToken = null
+        userData.token = null //
+        userData.ctoken = null
+        userData.refreshToken = null //
         userData.refreshTime = null
         cryptoService.saveData(userData, 'userindex')
     }
@@ -17,6 +18,15 @@ export function LocalCleanup() {
     authStore.setAuthorized(false)
     authStore.setToken('')
     authStore.setRefToken('')
+    authStore.setCtoken('')
     authStore.setRefTime(0)
     //localStorage.removeItem('userindex', 'True')
+}
+
+export function filterString(inputValue) {
+    // Remove unwanted characters and replace multiple spaces with single space
+    inputValue = inputValue
+        .replace(/[^\s\w\-()!\[\]/]/g, '') // Remove unwanted characters
+        .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+    return inputValue
 }

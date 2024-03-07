@@ -1,39 +1,43 @@
-// src/stores/auth.js
 import { defineStore } from 'pinia'
+
 export const useAuthStore = defineStore('auth', {
-    //id: 'auth',
     state: () => ({
+        // Initial state of the store
         username: '',
         authorized: false,
         token: '',
         reftoken: '',
+        ctoken: '',
         reftime: new Date()
     }),
     getters: {
-        isAuthenticated() {
-            return this.authorized
+        // Getter functions to access state properties
+        isAuthenticated(state) {
+            return state.authorized
         },
-        getUsername() {
-            return this.username
+        getUsername(state) {
+            return state.username
         },
-        getToken() {
-            return this.token
+        getToken(state) {
+            return state.token
         },
-        getRefToken() {
-            return this.reftoken
+        getRefToken(state) {
+            return state.reftoken
         },
-        getRefTime() {
-            return this.reftime
+        getRefTime(state) {
+            return state.reftime
+        },
+        getCtoken(state) {
+            return state.ctoken
         }
-        //below is arowkey function.
-        //        getRefToken: (state) => state.reftoken,
     },
     actions: {
-        setUsername(newUsername) {
-            this.username = newUsername
-        },
+        // Action functions to modify state
         setAuthorized(authorized) {
             this.authorized = authorized
+        },
+        setUsername(newUsername) {
+            this.username = newUsername
         },
         setToken(acc_token) {
             this.token = acc_token
@@ -43,7 +47,11 @@ export const useAuthStore = defineStore('auth', {
         },
         setRefTime(time) {
             this.reftime = time
+        },
+        setCtoken(cx_token) {
+            this.ctoken = cx_token
         }
     }
 })
+
 export default useAuthStore

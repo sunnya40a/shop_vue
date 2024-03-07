@@ -46,7 +46,7 @@ export default {
                 const usertoken = authStore.token
                 // Logout request to the server
                 const response = await axios.post(
-                    'http://localhost:8000/logoutapi',
+                    'https://localhost:8000/logoutapi',
                     {},
                     {
                         withCredentials: true,

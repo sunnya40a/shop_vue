@@ -59,7 +59,7 @@ export function RefreshToken() {
             }
 
             // Perform refresh token request
-            const response = await fetch('http://localhost:8000/refreshtoken', {
+            const response = await fetch('https://localhost:8000/refreshtoken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

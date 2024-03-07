@@ -84,11 +84,11 @@ export default {
 
             try {
                 // Send a POST request to the login endpoint
-                const response = await fetch('http://localhost:8000/loginapi', {
+                const response = await fetch('https://localhost:8000/loginapi', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(mytoken && { 'Authorization': mytoken })
+                        ...(mytoken && { Authorization: mytoken })
                     },
                     body: JSON.stringify({
                         username: input.value.username,
@@ -109,6 +109,9 @@ export default {
                     if (responseData.token) {
                         authStore.setToken(responseData.token)
                     }
+                    if (responseData.xcsrftoken) {
+                        authStore.setCtoken(responseData.xcsrftoken)
+                    }
                     let refTime = 0
                     if (responseData.reftoken) {
                         authStore.setRefToken(responseData.reftoken)
@@ -125,12 +128,12 @@ export default {
                         user: input.value.username,
                         authorized: true,
                         token: authStore.token,
+                        ctoken: authStore.ctoken,
                         refreshToken: authStore.reftoken,
                         refreshTime: authStore.reftime
                     }
                     // Save user information to local storage
                     cryptoService.saveData(authindex, 'userindex')
-
                     // Redirect to dashboard
                     router.replace({ name: 'dashboard' })
                 } else {
@@ -166,8 +169,7 @@ export default {
 }
 </script>
 
-
-<style lang="scss">
+<style lang="scss" scoped>
 #login {
     display: flex;
     flex-direction: column;
