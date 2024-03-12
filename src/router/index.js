@@ -66,11 +66,6 @@ function authenticatedGuard(to, from, next) {
     const authStore = useAuthStore()
 
     if (userData) {
-        // console.log('userData fields:')
-        // Object.keys(userData).forEach((key) => {
-        //     console.log(`${key}: ${userData[key]}`)
-        // })
-
         // Check if `userData` has value
         // Update Pinia store with the retrieved data
         authStore.setUsername(userData.user)

@@ -1,27 +1,27 @@
 //DateRange.vue
 <template>
-    <input type="radio" id="all" name="timeframe" value="all" checked @change="timefilter" />
+    <input id="all" type="radio" name="timeframe" value="all" checked @change="timefilter" />
     <label for="all">All</label>
 
-    <input type="radio" id="lastYear" name="timeframe" value="lastYear" @change="timefilter" />
+    <input id="lastYear" type="radio" name="timeframe" value="lastYear" @change="timefilter" />
     <label for="lastYear">Last Year</label>
 
-    <input type="radio" id="thisYear" name="timeframe" value="thisYear" @change="timefilter" />
+    <input id="thisYear" type="radio" name="timeframe" value="thisYear" @change="timefilter" />
     <label for="thisYear">This Year </label>
 
-    <input type="radio" id="lastMonth" name="timeframe" value="lastMonth" @change="timefilter" />
+    <input id="lastMonth" type="radio" name="timeframe" value="lastMonth" @change="timefilter" />
     <label for="lastMonth">Last Month</label>
 
-    <input type="radio" id="thisMonth" name="timeframe" value="thisMonth" @change="timefilter" />
+    <input id="thisMonth" type="radio" name="timeframe" value="thisMonth" @change="timefilter" />
     <label for="thisMonth">This Month</label>
 
-    <input type="radio" id="lastWeek" name="timeframe" value="lastWeek" @change="timefilter" />
+    <input id="lastWeek" type="radio" name="timeframe" value="lastWeek" @change="timefilter" />
     <label for="lastWeek">Last Week </label>
 
-    <input type="radio" id="thisWeek" name="timeframe" value="thisWeek" @change="timefilter" />
+    <input id="thisWeek" type="radio" name="timeframe" value="thisWeek" @change="timefilter" />
     <label for="thisWeek">This Week </label>
 
-    <input type="radio" id="today" name="timeframe" value="today" @change="timefilter" />
+    <input id="today" type="radio" name="timeframe" value="today" @change="timefilter" />
     <label for="today">Today</label>
 </template>
 <script setup>
@@ -38,8 +38,7 @@ const timefilter = (e) => {
 
 const calculateDateRange = (timeframe) => {
     const currentDate = new Date()
-    let startDate, endDate
-
+    let startDate, endDate, oneWeekAgo, startOfWeek, endOfWeek
     switch (timeframe) {
         case 'lastYear':
             startDate = new Date(currentDate.getFullYear() - 1, 0, 1) // Start of last year
@@ -58,7 +57,7 @@ const calculateDateRange = (timeframe) => {
             endDate = new Date() // Current date (Today)
             break
         case 'lastWeek':
-            const oneWeekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000) // One week ago
+            oneWeekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000) // One week ago
             startDate = new Date(
                 oneWeekAgo.getFullYear(),
                 oneWeekAgo.getMonth(),
@@ -71,8 +70,8 @@ const calculateDateRange = (timeframe) => {
             ) // End of last week
             break
         case 'thisWeek':
-            const startOfWeek = currentDate.getDate() - currentDate.getDay() // Start of this week
-            const endOfWeek = startOfWeek + 6
+            startOfWeek = currentDate.getDate() - currentDate.getDay() // Start of this week
+            endOfWeek = startOfWeek + 6
             startDate = new Date(currentDate.setDate(startOfWeek)) // Start of this week
             endDate = new Date(currentDate.setDate(endOfWeek)) // End of this week
             break

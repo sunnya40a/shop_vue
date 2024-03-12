@@ -1,3 +1,4 @@
+// Login.vue
 <template>
     <div id="login" class="login-container">
         <form @submit.prevent="login">
@@ -5,10 +6,10 @@
             <div class="form-inputs">
                 <label for="username">Username</label>
                 <input
-                    type="text"
                     id="username"
-                    name="username"
                     v-model="input.username"
+                    type="text"
+                    name="username"
                     placeholder="Username"
                     autocomplete="username"
                 />
@@ -17,10 +18,10 @@
                 <label for="Password">Password</label>
                 <div class="password-wrapper">
                     <input
-                        :type="isPasswordVisible ? 'text' : 'password'"
                         id="password"
-                        name="password"
                         v-model="input.password"
+                        :type="isPasswordVisible ? 'text' : 'password'"
+                        name="password"
                         placeholder="Enter Password"
                         autocomplete="current-password"
                     />
@@ -34,7 +35,7 @@
                 </div>
             </div>
             <div class="remember-me">
-                <input type="checkbox" id="remember" name="remember" />
+                <input id="remember" type="checkbox" name="remember" />
                 <label for="remember">Remember me</label>
             </div>
         </form>
@@ -74,7 +75,7 @@ export default {
 
         // Function to handle login
         const login = async () => {
-            error.value = '' // Reset error message
+            error.value = "Couldn't login" // Reset error message
 
             // Check if refresh token exists
             if (!authStore.reftoken) {

@@ -7,4 +7,4 @@ export default {
     components: { TableComp }
 }
 </script>
-<style lang=""></style>
+<style lang="scss" scoped></style>

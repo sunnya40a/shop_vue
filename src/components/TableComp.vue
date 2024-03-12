@@ -103,6 +103,9 @@ import Pagination from '@/components/Pagination.vue'
 import { useAuthStore } from '@/stores/auth'
 
 export default {
+    components: {
+        Pagination
+    },
     data() {
         return {
             data: null,
@@ -190,9 +193,6 @@ export default {
             this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
             this.fetchData()
         }
-    },
-    components: {
-        Pagination
     }
 }
 </script>

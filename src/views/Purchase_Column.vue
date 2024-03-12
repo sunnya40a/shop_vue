@@ -5,31 +5,31 @@
         <form @submit.prevent="savePurchase">
             <div class="form-group">
                 <label for="po">PO:</label>
-                <input type="number" v-model="purchase.PO" id="po" required />
+                <input id="po" v-model="purchase.PO" type="number" required />
             </div>
             <div class="form-group">
                 <label for="itemList">Item List:</label>
-                <input type="text" v-model="purchase.item_list" id="itemList" required />
+                <input id="itemList" v-model="purchase.item_list" type="text" required />
             </div>
             <div class="form-group">
                 <label for="description">Description:</label>
-                <textarea v-model="purchase.description" id="description" required></textarea>
+                <textarea id="description" v-model="purchase.description" required></textarea>
             </div>
             <div class="form-group">
                 <label for="qty">Qty:</label>
-                <input type="number" v-model="purchase.qty" id="qty" required />
+                <input id="qty" v-model="purchase.qty" type="number" required />
             </div>
             <div class="form-group">
                 <label for="category">Category:</label>
-                <input type="text" v-model="purchase.category" id="category" required />
+                <input id="category" v-model="purchase.category" type="text" required />
             </div>
             <div class="form-group">
                 <label for="price">Price:</label>
-                <input type="number" v-model="purchase.price" id="price" required />
+                <input id="price" v-model="purchase.price" type="number" required />
             </div>
             <div class="form-group">
                 <label for="user">User:</label>
-                <input type="text" v-model="purchase.User" id="user" required />
+                <input id="user" v-model="purchase.User" type="text" required />
             </div>
             <button type="submit">Save</button>
         </form>
@@ -37,8 +37,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
     data() {
         return {
@@ -55,14 +53,23 @@ export default {
     },
     methods: {
         savePurchase() {
-            axios
-                .post('http://localhost:8000/purchaseapi', this.purchase)
-                .then((response) => {
-                    console.log('Data saved successfully:', response.data)
+            const url = 'http://localhost:8000/purchaseapi'
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Assuming JSON data
+                },
+                body: JSON.stringify(this.purchase)
+            }
+
+            fetch(url, options)
+                .then((response) => response.json()) // Parse response as JSON
+                .then((data) => {
+                    console.log('Data saved successfully:', data)
                     // Optionally, you can perform additional actions after successful save
                 })
                 .catch((error) => {
-                    console.error('Error saving data:', error.response.data)
+                    console.error('Error saving data:', error)
                     // Handle error, show error message, etc.
                 })
         }
@@ -70,7 +77,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .purchase-entry-form {
     max-width: 400px;
     margin: auto;
@@ -110,3 +117,4 @@ export default {
     }
 }
 </style>
+<style lang="scss" scoped></style>

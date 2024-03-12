@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { cryptoService } from '@/service/security'
 import router from '@/router' // Assuming you have a router instance defined
 import { getTokenRefreshMin } from '@/service/loginhelper'
+import { LocalCleanup } from '@/service/helper'
 
 // Define the RefreshToken function
 export function RefreshToken() {
@@ -24,7 +25,7 @@ export function RefreshToken() {
         cryptoService.saveData(savetoken, 'userindex')
         authStore.setToken(newAccessToken)
         authStore.setRefTime(new Date().setMinutes(new Date().getMinutes() + reftime))
-        console.log('New token saved successfully')
+        //console.log('New token saved successfully')
     }
 
     // Function to handle refresh token renewal failure
@@ -34,9 +35,8 @@ export function RefreshToken() {
         // Handle different scenarios based on error and response status
         if (error.response && error.response.status === 401) {
             // Redirect to the logout page and update auth store
-            router.push('/logout')
-            authStore.setAuthorized(false)
-            authStore.setUsername('')
+            logoutUser()
+            console.log('Token renewal failed due to unauthorized access')
         } else {
             // Handle other errors
             console.error('Error:', error)
@@ -44,17 +44,21 @@ export function RefreshToken() {
         }
     }
 
+    // Function to handle user logout
+    const logoutUser = () => {
+        router.push('/logout')
+        LocalCleanup()
+        teardownInterval()
+    }
+
     // Function to refresh the token
     const refreshToken = async () => {
         try {
             const refreshTokenValue = retrieveRefreshToken()
-
+            const csrftoken = authStore.ctoken
             // Check if refresh token exists
             if (!refreshTokenValue) {
-                // Redirect to logout page if refresh token is missing and update auth store
-                router.push('/logout')
-                authStore.setAuthorized(false)
-                authStore.setUsername('')
+                logoutUser()
                 return
             }
 
@@ -63,24 +67,23 @@ export function RefreshToken() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    refreshtoken: `${refreshTokenValue}`
-                }
+                    refreshtoken: `${refreshTokenValue}`,
+                    'X-CSRF-Token': `${csrftoken}`
+                },
+                credentials: 'include'
             })
 
-            // Check if request is successful
             if (!response.ok) {
-                // Redirect to logout page and update auth store in case of failure
-                router.push('/logout')
-                authStore.setAuthorized(false)
-                authStore.setUsername('')
-                throw new Error(`Refresh token request failed with status ${response.status}`)
+                const data = await response.json()
+                logoutUser()
+                console.log('Token renewal request failed:', response.status)
+            } else {
+                // Extract new access token from response
+                const data = await response.json()
+                const newAccessToken = data.newtoken
+                // Update the access token in the store
+                updateAccessToken(newAccessToken)
             }
-
-            // Extract new access token from response
-            const data = await response.json()
-            const newAccessToken = data.newtoken
-            // Update the access token in the store
-            updateAccessToken(newAccessToken)
         } catch (error) {
             // Handle refresh token failure
             handleRefreshTokenFailure(error)
@@ -103,22 +106,12 @@ export function RefreshToken() {
     // Function to check and refresh token if necessary
     const refreshtokenCheck = () => {
         const reftime = authStore.reftime
-        if (new Date(reftime) - new Date() <= 1.5 * 60 * 1000) {
-            // 1.5 min
-            console.log(
-                'Token refresh called [' +
-                    new Date().toLocaleTimeString() +
-                    '] Exp: ' +
-                    new Date(reftime).toLocaleString()
-            )
+        const currentTime = new Date().getTime()
+        if (reftime && reftime - currentTime <= 1.5 * 60 * 1000) {
+            //console.log('Refreshing token...')
             refreshToken()
         } else {
-            console.log(
-                'Token refresh ignored[' +
-                    new Date().toLocaleTimeString() +
-                    '] Exp: ' +
-                    new Date(reftime).toLocaleString()
-            )
+            //console.log('Token refresh check skipped.')
         }
     }
 

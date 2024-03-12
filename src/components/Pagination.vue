@@ -15,14 +15,14 @@
                 >Page {{ currentPage }} of {{ totalPageCount }}</span
             >
             <span class="Records">(Total Records:{{ totalRecords }})</span>
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <li class="page-item" :class="{ disabled: currentPage === 1 || totalRecords === 0 }">
                 <a class="page-link" href="#" @click.prevent="firstPage">
                     <span class="material-symbols-outlined"> first_page </span>
                     <!-- First Page Icon -->
                 </a>
             </li>
             <!-- Previous Page -->
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <li class="page-item" :class="{ disabled: currentPage === 1 || totalRecords === 0 }">
                 <a class="page-link" href="#" @click.prevent="prevPage">
                     <span class="material-symbols-outlined"> chevron_left </span>
                     <!-- Previous Page Icon -->
@@ -30,9 +30,9 @@
             </li>
             <!-- Pagination links -->
             <li
-                class="page-item"
                 v-for="pageNumber in totalPageCount"
                 :key="pageNumber"
+                class="page-item"
                 :class="{ active: pageNumber === currentPage }"
             >
                 <a class="page-link" href="#" @click.prevent="changePage(pageNumber)">{{
@@ -40,14 +40,20 @@
                 }}</a>
             </li>
             <!-- Next Page -->
-            <li class="page-item" :class="{ disabled: currentPage === totalPageCount }">
+            <li
+                class="page-item"
+                :class="{ disabled: currentPage === totalPageCount || totalRecords === 0 }"
+            >
                 <a class="page-link" href="#" @click.prevent="nextPage">
                     <span class="material-symbols-outlined"> chevron_right </span>
                     <!-- Next Page Icon -->
                 </a>
             </li>
             <!-- Last Page -->
-            <li class="page-item" :class="{ disabled: currentPage === totalPageCount }">
+            <li
+                class="page-item"
+                :class="{ disabled: currentPage === totalPageCount || totalRecords === 0 }"
+            >
                 <a class="page-link" href="#" @click.prevent="lastPage">
                     <span class="material-symbols-outlined"> last_page </span>
                     <!-- Last Page Icon -->
@@ -57,59 +63,62 @@
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        currentPage: {
-            type: Number,
-            required: true
-        },
-        totalPageCount: {
-            type: Number,
-            required: true
-        },
-        perPage: {
-            type: Number,
-            required: true
-        },
-        totalRecords: {
-            type: Number,
-            required: true
-        }
-    },
-    data() {
-        return {
-            perPageOptions: [5, 10, 20, 50] // Options for number of records per page
-        }
-    },
-    methods: {
-        nextPage() {
-            if (this.currentPage < this.totalPageCount) {
-                this.$emit('page-change', this.currentPage + 1)
-            }
-        },
-        firstPage() {
-            this.$emit('page-change', 1)
-        },
-        lastPage() {
-            this.$emit('page-change', this.totalPageCount)
-        },
-        prevPage() {
-            if (this.currentPage > 1) {
-                this.$emit('page-change', this.currentPage - 1)
-            }
-        },
-        changePage(pageNumber) {
-            this.$emit('page-change', pageNumber)
-        },
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue'
 
-        perPageChanged(event) {
-            const selectedPerPage = parseInt(event.target.value, 10)
-            this.$emit('per-page-change', selectedPerPage)
-        }
+const props = defineProps({
+    currentPage: {
+        type: Number,
+        required: true
+    },
+    totalPageCount: {
+        type: Number,
+        required: true
+    },
+    perPage: {
+        type: Number,
+        required: true
+    },
+    totalRecords: {
+        type: Number,
+        required: true
+    }
+})
+
+const perPageOptions = ref([5, 10, 20, 50])
+
+const emit = defineEmits(['page-change', 'per-page-change'])
+
+const nextPage = () => {
+    if (props.currentPage < props.totalPageCount) {
+        emit('page-change', props.currentPage + 1)
     }
 }
+
+const firstPage = () => {
+    emit('page-change', 1)
+}
+
+const lastPage = () => {
+    emit('page-change', props.totalPageCount)
+}
+
+const prevPage = () => {
+    if (props.currentPage > 1) {
+        emit('page-change', props.currentPage - 1)
+    }
+}
+
+const changePage = (pageNumber) => {
+    emit('page-change', pageNumber)
+}
+
+const perPageChanged = (event) => {
+    const selectedPerPage = parseInt(event.target.value, 10)
+    emit('per-page-change', selectedPerPage)
+}
 </script>
+
 <style lang="scss" scoped>
 .navigation-container {
     display: flex; /* Make the container flex */

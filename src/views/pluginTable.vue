@@ -7,4 +7,4 @@ export default {
     components: { TablePlug }
 }
 </script>
-<style lang=""></style>
+<style lang="scss" scoped></style>

@@ -4,7 +4,7 @@
         <p>This is the Category Entry page</p>
     </main>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 #Home-page {
     padding-top: 50px;
     margin-left: 50px;

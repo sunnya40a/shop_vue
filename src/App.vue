@@ -3,12 +3,13 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { RefreshToken } from '@/service/refreshtoken'
 import { LocalCleanup } from '@/service/helper'
 import SideBar from './components/SideBar.vue'
-import axios from 'axios'
 
 export default {
+    components: {
+        SideBar
+    },
     setup() {
         // Router instance for navigation
         const router = useRouter()
@@ -17,56 +18,30 @@ export default {
         const authStore = useAuthStore()
 
         // Flag to control visibility of the navbar
-        const ShowNavbar = ref(authStore.isAuthenticated)
+        const showNavbar = ref(authStore.isAuthenticated)
 
-        // Timer for inactivity logout
-        let inactivityTimer = ref(undefined)
+        // Timer ID for inactivity logout
+        let inactivityTimerId = ref(null)
 
         // Reset inactivity timer
         const resetInactivityTimer = () => {
-            if (inactivityTimer) {
-                clearTimeout(inactivityTimer)
+            if (inactivityTimerId.value) {
+                clearTimeout(inactivityTimerId.value)
             }
             // Set timeout for logout after 5 minutes of inactivity
-            inactivityTimer = setTimeout(() => {
-                logoutUser()
-            }, 60000 * 10) // 10 minutes
+            inactivityTimerId.value = setTimeout(logoutCall, 60000 * 2) // 2 minute
         }
 
         // Logout user function
-        const logoutUser = async () => {
+        const logoutCall = () => {
             console.log('logout function called from App.vue')
-            console.log('current token:', authStore.token)
             // Check if user is authenticated
-            if (!authStore.isAuthenticated) {
+            if (authStore.isAuthenticated) {
+                router.push('/logout')
+                LocalCleanup()
+                clearTimeout(inactivityTimerId.value)
+            } else {
                 console.log('User is not logged in!!!')
-                return
-            }
-            try {
-                const usertoken = authStore.token
-                // Logout request to the server
-                const response = await axios.post(
-                    'https://localhost:8000/logoutapi',
-                    {},
-                    {
-                        withCredentials: true,
-                        headers: {
-                            authorization: usertoken
-                        }
-                    }
-                )
-                if (response.status >= 200 && response.status < 300) {
-                    // Run cleanup services
-                    LocalCleanup()
-                    // Redirect to the login page
-                    await router.push({ name: 'Login' })
-                } else {
-                    console.error('Logout failed. Status code:', response.status)
-                    // Handle logout failure
-                }
-            } catch (error) {
-                console.error('An error occurred during logout:', error)
-                // Handle logout failure
             }
         }
 
@@ -82,37 +57,26 @@ export default {
         // Remove event listeners on component unmount
         onUnmounted(() => {
             window.removeEventListener('mousemove', resetInactivityTimer)
-            window.removeEventListener('keypress', resetInactivityTimer)
+            window.removeEventListener('keydown', resetInactivityTimer)
             window.removeEventListener('touchstart', resetInactivityTimer)
-            clearTimeout(inactivityTimer)
+            clearTimeout(inactivityTimerId.value)
         })
 
         // Watch for authentication changes
+        // Update the showNavbar flag when authentication status changes
         watch(
             () => authStore.isAuthenticated,
             (newVal) => {
-                if (newVal) {
-                    // If authenticated, set ShowNavbar to true and reset inactivity timer
-                    ShowNavbar.value = true
-                    resetInactivityTimer()
-                } else {
-                    // If not authenticated, set ShowNavbar to false and clear inactivity timer
-                    ShowNavbar.value = false
-                    clearTimeout(inactivityTimer)
-                }
+                showNavbar.value = newVal
             }
         )
 
         // Refresh token logic
-        const { refreshToken } = RefreshToken()
+        //const { refreshToken } = RefreshToken()
 
         return {
-            ShowNavbar
+            showNavbar
         }
-    },
-
-    components: {
-        SideBar
     }
 }
 </script>
@@ -121,7 +85,7 @@ export default {
     <div>
         <div>
             <!-- Display SideBar only if showSide is true -->
-            <SideBar v-if="ShowNavbar" />
+            <SideBar v-if="showNavbar" />
         </div>
         <div>
             <RouterView />
@@ -138,7 +102,6 @@ export default {
     --menubackground: #1d5d9b;
     --menutext: #e0e0e0;
     --headertext: #00ffff;
-    --sidebar-width: 300px;
     --activebackground: #141e46;
     --menuhovercolor: #073757;
     --activeborder: #ff9843;
