@@ -65,9 +65,13 @@ const toggleSubItem = (list, index) => {
     })
 
     list.subnav[index].open = !list.subnav[index].open
-    if (!list.subnav[index].hasOwnProperty('subnav')) {
+    // Check for subnav property using the `in` operator
+    if (!('subnav' in list.subnav[index])) {
         activemenu.value = index
     }
+    // if (!list.subnav[index].hasOwnProperty('subnav')) {
+    //     activemenu.value = index
+    // }
 }
 </script>
 
@@ -97,11 +101,11 @@ const toggleSubItem = (list, index) => {
                 transition: background-color 0.1s ease;
             }
             .dropdown-icon {
-                font-variation-settings:
+                /*font-variation-settings:
                     'FILL' 0,
                     'weight' 400,
                     'GRAD' 100,
-                    'opsz' 24;
+                    'opsz' 24;*/
                 font-family: 'Material Symbols Outlined';
                 color: var(--dropdownmenucolor);
                 font-size: 3rem;

@@ -52,7 +52,7 @@ import { cryptoService } from '@/service/security'
 import { getTokenRefreshMin, HandleTokenValidity } from '@/service/loginhelper'
 
 export default {
-    name: 'Login',
+    name: 'LogiN',
     emits: ['vnode-unmounted'],
 
     setup(_, { emit, vnode }) {

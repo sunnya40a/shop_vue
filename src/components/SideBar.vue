@@ -89,7 +89,7 @@ export default {
                     open: false,
                     link: '/logout'
                 }
-            ],
+            ]
 
             // navigation: [
             // 	{
@@ -212,7 +212,7 @@ export default {
             // 		],
             // 	},
             // ],
-            activemenu: null
+            //activemenu: null
         }
     },
     methods: {
@@ -253,9 +253,16 @@ export default {
 
             // Toggle the clicked item
             this.navigation[index].open = !this.navigation[index].open
-            if (!this.navigation[index].hasOwnProperty('subnav')) {
+
+            // Check for subnav property more efficiently
+            if (!('subnav' in this.navigation[index])) {
                 this.activemenu = index
             }
+
+            // this.navigation[index].open = !this.navigation[index].open
+            // if (!this.navigation[index].hasOwnProperty('subnav')) {
+            //     this.activemenu = index
+            // }
         }
     },
     components: {
@@ -266,7 +273,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 aside {
     position: fixed;
     top: 5px;
@@ -298,11 +304,11 @@ aside {
             top: 1rem;
 
             .material-symbols-outlined {
-                font-variation-settings:
+                /*font-variation-settings:
                     'FILL' 1,
                     'wght' 400,
                     'GRAD' 0,
-                    'opsz' 24;
+                    'opsz' 24;*/
                 font-family: 'Material Symbols Outlined';
                 font-size: 3rem;
                 margin-right: 0.5rem;
@@ -354,11 +360,11 @@ aside {
                     }
 
                     .material-symbols-outlined {
-                        font-variation-settings:
+                        /*font-variation-settings:
                             'FILL' 0,
                             'wght' 200,
                             'GRAD' 100,
-                            'opsz' 24;
+                            'opsz' 24;*/
                         font-family: 'Material Symbols Outlined';
                         font-size: 2.5rem;
                         justify-content: center;
@@ -366,11 +372,11 @@ aside {
                         margin-left: auto;
                     }
                     .dropdown-icon {
-                        font-variation-settings:
+                        /*font-variation-settings:
                             'FILL' 0,
                             'wght' 400,
                             'GRAD' 100,
-                            'opsz' 24;
+                            'opsz' 24;*/
                         font-family: 'Material Symbols Outlined';
                         color: var(--dropdownmenucolor);
                         font-size: 3rem;

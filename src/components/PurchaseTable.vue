@@ -97,15 +97,17 @@ const filteredItems = computed(() => {
                     itemDate.getMonth() === currentDate.getMonth() &&
                     itemDate.getFullYear() === currentDate.getFullYear()
                 )
-            case 'lastWeek':
+            case 'lastWeek': {
                 const oneWeekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000)
                 return itemDate >= oneWeekAgo && itemDate <= currentDate
-            case 'thisWeek':
+            }
+            case 'thisWeek': {
                 const startOfWeek = currentDate.getDate() - currentDate.getDay()
                 const endOfWeek = startOfWeek + 6
                 const startDate = new Date(currentDate.setDate(startOfWeek))
                 const endDate = new Date(currentDate.setDate(endOfWeek))
                 return itemDate >= startDate && itemDate <= endDate
+            }
             case 'today':
                 return itemDate.toDateString() === currentDate.toDateString()
             default:

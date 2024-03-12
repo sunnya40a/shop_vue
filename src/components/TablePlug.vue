@@ -88,7 +88,7 @@
         <Pagination
             :current-page="currentPage"
             :total-page-count="totalPageCount"
-            :per-page.sync="limit"
+            :per-page="limit"
             :totalRecords="totalRecords"
             @page-change="handlePageChange"
             @per-page-change="handlePerPageChange"
@@ -98,7 +98,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import Pagination from '@/components/Pagination.vue'
+import Pagination from '@/components/PaginatioN.vue'
 import SearchComp from '@/components/SearchComp.vue'
 import DateRange from '@/components/DateRange.vue'
 import { parseISO, format } from 'date-fns'
@@ -151,7 +151,7 @@ const sortedData = computed(() => {
 const fetchData = async () => {
     try {
         const response = await fetch(
-            `https://localhost:8000/test?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`,
+            `https://localhost:8000/purchase/list?page=${currentPage.value}&limit=${limit.value}&search=${searchTerm.value}&datef=${fromDate.value}&datee=${toDate.value}&sortBy=${sortByField.value}&sortOrder=${sortDirection.value}`,
             {
                 method: 'GET',
                 headers: {

@@ -26,7 +26,7 @@ export function LocalCleanup() {
 export function filterString(inputValue) {
     // Remove unwanted characters and replace multiple spaces with single space
     inputValue = inputValue
-        .replace(/[^\s\w\-()!\[\]/]/g, '') // Remove unwanted characters
+        .replace(/[^\s\w\-()!,.[]]/g, '') // Remove unwanted characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
     return inputValue
 }

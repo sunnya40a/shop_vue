@@ -24,7 +24,7 @@ const handleInput = (e) => {
     // Remove any characters that don't match the desired pattern
     // Remove unwanted characters and replace multiple spaces with single space
     inputValue = inputValue
-        .replace(/[^\s\w\-()!\[\]/]/g, '') // Remove unwanted characters
+        .replace(/[^\s\w\-()!,.[]]/g, '') // Remove unwanted characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
 
     // Update the searchText with the filtered input value

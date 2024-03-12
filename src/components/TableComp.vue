@@ -90,7 +90,7 @@
         <Pagination
             :current-page="currentPage"
             :total-page-count="totalPageCount"
-            :per-page.sync="limit"
+            :per-page="limit"
             :totalRecords="totalRecords"
             @page-change="handlePageChange"
             @per-page-change="handlePerPageChange"
@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import Pagination from '@/components/Pagination.vue'
+import Pagination from '@/components/PaginatioN.vue'
 import { useAuthStore } from '@/stores/auth'
 
 export default {

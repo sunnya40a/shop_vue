@@ -74,7 +74,6 @@ export function RefreshToken() {
             })
 
             if (!response.ok) {
-                const data = await response.json()
                 logoutUser()
                 console.log('Token renewal request failed:', response.status)
             } else {

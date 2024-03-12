@@ -1,5 +1,5 @@
 //src/main.js
-import { useAuthStore } from '@/stores/auth'
+//import { useAuthStore } from '@/stores/auth'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -11,5 +11,5 @@ const app = createApp(App)
 //pinia.use(useAuthStore) // enabling this giving error.
 app.use(pinia)
 app.use(router)
-const authStore = useAuthStore()
+//const authStore = useAuthStore()
 app.mount('#app')

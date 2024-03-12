@@ -1,7 +1,7 @@
 // Import necessary dependencies
 import { useAuthStore } from '@/stores/auth' // Import the auth store to access authentication-related data
 import { LocalCleanup } from '@/service/helper' // Import the helper service for local data cleanup
-
+import router from '@/router' // Assuming you have a router instance defined
 // Function to get token refresh minutes
 export function getTokenRefreshMin(token) {
     // Check if token exists
@@ -42,8 +42,10 @@ export async function HandleTokenValidity(token) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        refreshtoken: `${authStore.reftoken}`
-                    }
+                        refreshtoken: `${authStore.reftoken}`,
+                        'X-CSRF-Token': `${authStore.ctoken}`
+                    },
+                    credentials: 'include'
                 })
                 // Check if refresh token request is successful
                 if (refresponse.ok) {

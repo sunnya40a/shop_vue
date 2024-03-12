@@ -16,8 +16,6 @@ export default {
         const logout = async () => {
             try {
                 isLoggingOut.value = true
-                const usertoken = authstore.token
-
                 const response = await fetch('https://localhost:8000/logoutapi', {
                     method: 'POST',
                     headers: {

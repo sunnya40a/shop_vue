@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashBoard from '../views/DashBoard.vue'
-import Login from '../views/Login.vue'
+import Login from '../views/LogiN.vue'
 import { useAuthStore } from '@/stores/auth'
 import { cryptoService } from '@/service/security'
 
@@ -31,13 +31,13 @@ const router = createRouter({
         {
             path: '/table',
             name: 'table',
-            component: () => import('../views/table.vue'),
+            component: () => import('../views/TableX.vue'),
             meta: { requiresAuth: true }
         },
         {
             path: '/category',
             name: 'category',
-            component: () => import('../views/category.vue'),
+            component: () => import('../views/CategorY.vue'),
             meta: { requiresAuth: true }
         },
         {
@@ -49,7 +49,7 @@ const router = createRouter({
         {
             path: '/logout',
             name: 'logout',
-            component: () => import('../views/logout.vue'),
+            component: () => import('../views/LogouT.vue'),
             meta: { requiresAuth: true }
         },
         {
