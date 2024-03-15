@@ -4,11 +4,12 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { LocalCleanup } from '@/service/helper'
-import SideBar from './components/SideBar.vue'
+//import NavBar from '@/components/NavBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 export default {
     components: {
-        SideBar
+        NavBar
     },
     setup() {
         // Router instance for navigation
@@ -85,7 +86,7 @@ export default {
     <div>
         <div>
             <!-- Display SideBar only if showSide is true -->
-            <SideBar v-if="showNavbar" />
+            <NavBar v-if="showNavbar" />
         </div>
         <div>
             <RouterView />
@@ -144,3 +145,4 @@ button {
     }
 }
 </style>
+./components/NavBar.vue
